@@ -1,0 +1,7 @@
+django
+django-google-charts
+python-dateutil
+django-qsstats-magic
+gunicorn
+django-heroku
+spotipy

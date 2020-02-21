@@ -1,0 +1,23 @@
+<html>
+  <head>
+  </head>
+
+  <body>
+    {% load googlecharts %}
+    <div id="out"></div>
+    {% googlecharts %}
+      {% data values "out_data" %}
+        {% col "string" "Name" %}"{{ val }}"{% endcol %}
+        {% col "number" "Occurance" %}{{ val }}{% endcol %}
+      {% enddata %}
+      {% options "out_options" %}
+        kind: "PieChart",
+        options: {
+          width: 900,
+          height: 600
+        }
+      {% endoptions %}
+      {% graph "out" "out_data" "out_options" %}
+    {% endgooglecharts %}
+  </body>
+</html>

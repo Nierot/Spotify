@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        function redirect() {
+            var url = document.location.href.split('#');
+            document.location.href = url[0] + "?" + url[1].split('&')[0];
+        }
+    </script>
+</head>
+
+
+<body>
+    <p> Redirecting... </p>   
+    <script>
+        redirect()
+    </script>
+</body>
+
+</html>
