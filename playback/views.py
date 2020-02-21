@@ -15,7 +15,7 @@ from . import db
 from django.core.exceptions import ObjectDoesNotExist
 
 
-redirect_uri = 'http://localhost:8000/callback/'
+redirect_uri = 'http://spotify.nierot.com/callback/'
 scope = 'user-library-read user-read-currently-playing user-top-read user-read-recently-played'
 username = ""
 
