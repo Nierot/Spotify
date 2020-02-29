@@ -76,3 +76,11 @@ def encodeURIComponent(comp):
         else:
             res = res + letter
     return res
+
+def ms_to_minutes_and_seconds(ms):
+    sec = ms/1000
+    minute = 0
+    while sec > 59:
+        sec -= 60
+        minute += 1
+    return str(minute) + ":" + str(math.floor(sec))

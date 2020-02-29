@@ -13,6 +13,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title> Favorite Artists </title>
+
 <style>
 .list-group {
     width: 100%;
@@ -35,6 +37,16 @@ p {
         return vars;
     }
 
+    function redirectPlayback() {
+        var token = getUrlVars()['access_token']
+        if (token[token.length-1] == '#') {
+            token = token.replace(/#/,'');
+        } else if (token[token.length - 1] == '_') {
+            token = token.replace(/#_=_/,'');
+        }
+        $(location).attr('href', window.location.href.split('callback')[0] + "playback?access_token=" + token);
+    }
+
     function redirect(dest, type) {
         var token = getUrlVars()['access_token'];
         if (token[token.length-1] == '#') {
@@ -55,6 +67,9 @@ p {
         </li>
         <li class="nav-item">
             <a class="nav-link" href="JavaScript:void(0);" onclick="redirect('long_term', 'track');">Tracks</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="JavaScript:void(0);" onclick="redirectPlayback();">Playback</a>
         </li>
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Options</a>

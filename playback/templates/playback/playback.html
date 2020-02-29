@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html>
+
+<!-- Material Design Lite-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+<script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+<!-- Bootstrap material design -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
+
+<!-- Material Design Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">\
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title> Playback </title>
+
+<style>
+.list-group {
+    width: 100%;
+}
+
+body { 
+    padding-top: 70px; 
+}
+
+.control {
+    position: fixed;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+}
+
+.control .cover_art {
+    margin-top: -160px;
+    margin-left: -160px;
+}
+
+.control .playback_buttons { 
+    margin-left: -210px;
+    font-size: xx-large;
+}
+
+.control .artists {
+    margin-top: -400px;
+    text-align: center;
+}
+
+.control .title {
+
+}
+
+#selection {
+    display: none;
+}
+
+#select_other_device {
+    position: fixed;
+    bottom: 0%;
+    width: 100%;
+}
+
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+</style>
+
+<script>
+    function getUrlVars() {
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+        return vars;
+    }
+
+    function kut_hash_token() {
+        var token = getUrlVars()['access_token'];
+        if (token[token.length-1] == '#') {
+            token = token.replace(/#/,'');
+        } else if (token[token.length - 1] == '_') {
+            token = token.replace(/#_=_/,'');
+        }
+        return token
+    }
+
+    function redirect(dest, type) {
+        $(location).attr('href', window.location.href.split('playback')[0] + "callback/?access_token=" + kut_hash_token() + "&mode=" + dest + "&type=" + type);
+    }
+
+    function select_device(id, name) {
+        $(location).attr('href', encodeURI(window.location.href.split('?')[0] + "?access_token=" + kut_hash_token() + '&device_id=' + id + '&device_name=' + name + '&command=none'));
+    }
+
+    function other_device() {
+        $(location).attr('href', window.location.href.split('&')[0])
+    }
+
+    function command(command) {
+        $(location).attr('href', window.location.href.split('&command')[0] + '&command=' + command);
+    }
+
+    $(document).ready(function() {
+        id = getUrlVars()['device_id'];
+        if (id == undefined) {
+            document.getElementById('selection').style.display = "block";
+            document.getElementById('control').style.display = "none";
+        } else {
+            document.getElementById('selection').style.display = "none";
+            document.getElementById('control').style.display = "block";
+        }
+    });
+</script>
+
+</head>
+
+<body>
+    <ul class="nav nav-tabs bg-primary fixed-top">
+        <li class="nav-item">
+            <a class="nav-link" href="JavaScript:void(0);" onclick="redirect('long_term', 'artist');">Artists</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="JavaScript:void(0);" onclick="redirect('long_term', 'track');">Tracks</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="#">Playback</a>
+        </li>
+    </ul>
+    <div class="control" id="control">
+        <img class="cover_art" src='{{ playback.cover }}'></img>
+        {% for artist in playback.artists %}
+            <p class="artists"> {{ artist }} </p>
+        {% endfor %}
+        <div class="playback_buttons">
+            <button class="btn btn-primary material-icons" href="JavaScript:void(0);" onclick="command('previous');">skip_previous</button>
+            <button class="btn btn-primary material-icons" href="JavaScript:void(0);" onclick="command('pause');">pause_circle_filled</button>
+            <button class="btn btn-primary material-icons" href="JavaScript:void(0);" onclick="command('next');">skip_next</button>
+        </div>
+
+        <!-- not sure if i want this to be here
+        <button id="select_other_device" class="btn btn-primary btn-lg btn-block" href="JavaScript:void(0);" onclick="other_device();"> Select another deivce </button>
+        -->
+    </div>
+    <div id="selection">
+        <div class="jumbotron">
+            <h1 class="display-4"> Please select the device you want to control </h1>
+        </div>
+        {% for device in devices %}
+            <button class="btn btn-primary btn-lg btn-block" href="JavaScript:void(0);" onclick="select_device('{{ device.id }}', ' {{ device.name }}');"> {{ device.name }} </button>
+        {% endfor %}
+    </div>
+</body>
+
+</html>

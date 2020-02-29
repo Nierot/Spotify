@@ -13,10 +13,13 @@ from . import utils
 from . import request as rq
 from . import db
 from django.core.exceptions import ObjectDoesNotExist
+import requests
+import base64
+import json
 
 
-redirect_uri = 'http://spotify.nierot.com/callback/'
-scope = 'user-library-read user-read-currently-playing user-top-read user-read-recently-played'
+redirect_uri = 'http://localhost:8000/callback/'
+scope = 'user-library-read user-read-currently-playing user-top-read user-read-recently-played playlist-modify-public'
 username = ""
 
 def index(request):
@@ -31,6 +34,43 @@ def graph(request):
 def auth(request):
     auth_url = "https://accounts.spotify.com/authorize?response_type=token&client_id=" + secrets.CLIENT_ID + "&scope=" + utils.encodeURIComponent(scope) + "&redirect_uri=" + redirect_uri
     return HttpResponseRedirect(auth_url)
+
+def auth_test(request):
+    auth_url = "https://accounts.spotify.com/authorize?response_type=code&client_id=" + secrets.CLIENT_ID + "&scope=" + utils.encodeURIComponent(scope) + "&redirect_uri=" + "http://localhost:8000/add_test/"
+    return HttpResponseRedirect(auth_url)
+
+def add_test(request):
+    auth_str = '{}:{}'.format(secrets.CLIENT_ID, secrets.CLIENT_SECRET)
+    b64_auth_str = base64.b64encode(auth_str.encode()).decode()
+
+    auth_token = request.GET.get('code')
+    code_payload = {
+		'grant_type': 'authorization_code',
+		'code': str(auth_token),
+		'redirect_uri': "http://localhost:8000/add_test/",
+	}
+
+    auth_str = '{}:{}'.format(secrets.CLIENT_ID, secrets.CLIENT_SECRET)
+    b64_auth_str = base64.b64encode(auth_str.encode()).decode()
+
+    headers = {
+		'Content-Type': 'application/x-www-form-urlencoded',
+		'Authorization': 'Basic {}'.format(b64_auth_str)
+	}
+
+    post_request = requests.post('https://accounts.spotify.com/api/token', data=code_payload, headers=headers)
+
+    response_data = json.loads(post_request.text)
+
+    refresh_token = response_data['refresh_token']
+
+    refresh_payload = {
+        'grant_type': 'refresh_token',
+        'refresh_token': response_data['refresh_token']
+    }
+
+    post_refresh = requests.post('https://accounts.spotify.com/api/token', data=refresh_payload, headers=headers)
+    return HttpResponse(str(json.loads(post_refresh.text)))
 
 def callback(request):
     params = request.GET.urlencode().split('&')
@@ -62,3 +102,16 @@ def callback(request):
         else:
             res = [{"ERROR":{"Error":"An error occured"}}]
     return render(request, 'playback/favorites_artist.html',{'results': res})
+
+def playback(request):
+    token = request.GET.urlencode().split('&')[0].split('=')[1]
+    devices = rq.playback_get_devices(token)
+    playback = rq.playback_get_current_playback(token)
+    rq.playback_get_current_playback(token)
+
+    yeet = rq.playlist_add(token, '2Mlyguyh81oqe0RDJ6mx19', ['spotify:track:1wVMkGi3vQlLSpO04RKzgm'])
+    rq.print_json(yeet)
+    return render(request, 'playback/playback.html', context={'devices':devices,'playback':playback})
+
+def add_songs(request):
+    yeet = rq.playlist_add(token, '2Mlyguyh81oqe0RDJ6mx19', ['spotify:track:1wVMkGi3vQlLSpO04RKzgm'])
